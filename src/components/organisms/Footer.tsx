@@ -1,6 +1,6 @@
 const CopyRight = () => {
     return (
-        <p className="text-gray-500 text-sm text-center sm:text-left">© 2021 —
+        <p className="text-gray-500 text-sm text-center sm:text-left">© 2021 mktbsh.github.io —
             <a href="https://twitter.com/mktbsh" rel="noopener noreferrer" className="text-gray-600 ml-1" target="_blank">@mktbsh</a>
         </p>
     )
