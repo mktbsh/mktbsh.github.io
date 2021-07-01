@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { classNames } from "utils/TailwindUtil";
+
 import { Link } from 'components/atoms/Link'
 import { HamburgerMenu } from 'components/molecules/HamburgerMenu';
+import { classNames } from "utils/TailwindUtil";
 
 
 const NavBar = () => {
