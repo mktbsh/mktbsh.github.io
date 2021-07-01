@@ -1,17 +1,17 @@
-import React from 'react'
+import React from "react";
+
 import { Meta, Story } from "@storybook/react";
 
-import { Link, LinkProps } from '../Link'
-
+import { Link, LinkProps } from "../Link";
 
 export default {
-    title: 'Link',
-} as Meta<LinkProps>
+  title: "Link",
+} as Meta<LinkProps>;
 
-const Template: Story<LinkProps> = ({ ...args }) => <Link {...args} />
+const Template: Story<LinkProps> = ({ ...args }) => <Link {...args} />;
 
-export const Home = Template.bind({})
+export const Home = Template.bind({});
 Home.args = {
-    name: 'Home',
-    href: '/'
-}
+  name: "Home",
+  href: "/",
+};
