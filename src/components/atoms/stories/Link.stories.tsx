@@ -5,7 +5,7 @@ import { Link, LinkProps } from '../Link'
 
 
 export default {
-    title: 'atoms/Link',
+    title: 'Link',
 } as Meta<LinkProps>
 
 const Template: Story<LinkProps> = ({ ...args }) => <Link {...args} />
