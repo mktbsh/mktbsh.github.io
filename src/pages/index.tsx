@@ -1,13 +1,11 @@
+import { NextPage, GetStaticProps } from "next";
+
 import { CommonMeta } from "components/atoms/CommonMeta";
+import { getFeaturesJson } from "lib/statics";
+import type { Features, Feature as FeatureProps } from "types/static/Features";
 
-type FeatureListItem = {
-  name: string;
-  checked: boolean;
-};
-
-type FeatureProps = {
-  title: string;
-  list: FeatureListItem[];
+type StaticProps = {
+  features: Features;
 };
 
 const Feature: React.VFC<FeatureProps> = ({ title, list }) => {
@@ -47,26 +45,7 @@ const Feature: React.VFC<FeatureProps> = ({ title, list }) => {
   );
 };
 
-const feature1: FeatureListItem[] = [
-  { name: "Twitter", checked: false },
-  { name: "Github", checked: false },
-  { name: "LinkedIn", checked: false },
-  { name: "Instagram", checked: false },
-];
-
-const feature2: FeatureListItem[] = [
-  { name: "pages/index", checked: true },
-  { name: "pages/about", checked: false },
-  { name: "pages/contact", checked: true },
-];
-
-const feature3: FeatureListItem[] = [
-  { name: "自己紹介の作成", checked: false },
-  { name: "職務経歴の記載", checked: false },
-  { name: "スキルセットの記載", checked: false },
-];
-
-const Home = () => {
+const Home: NextPage<StaticProps> = ({ features }) => {
   return (
     <>
       <CommonMeta
@@ -84,14 +63,22 @@ const Home = () => {
             </p>
           </div>
           <div className="flex flex-wrap -m-4 justify-center">
-            <Feature title="SNS系リンク設定" list={feature1} />
-            <Feature title="各ページ作成" list={feature2} />
-            <Feature title="Aboutページ作成" list={feature3} />
+            {features?.contents.map((feature, index) => (
+              <Feature key={index} {...feature} />
+            ))}
           </div>
         </div>
       </section>
     </>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  return {
+    props: {
+      features: getFeaturesJson(),
+    },
+  };
 };
 
 export default Home;
