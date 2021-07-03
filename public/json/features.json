@@ -1,0 +1,38 @@
+{
+    "contents": [
+        {
+            "name": "SNS系リンクの設定",
+            "list": [
+                { "name": "Twitter", "checked": false },
+                { "name": "Github", "checked": false },
+                { "name": "LinkedIn", "checked": false },
+                { "name": "Instagram", "checked": false }
+            ]
+        },
+        {
+            "name": "各ページ作成",
+            "list": [
+                { "name": "pages/index", "checked": true },
+                { "name": "pages/about", "checked": true },
+                { "name": "pages/contact", "checked": true }
+            ]
+        },
+        {
+            "name": "Aboutページ作成",
+            "list": [
+                { "name": "自己紹介の作成", "checked": false },
+                { "name": "職務経歴ページの作成", "checked": true },
+                { "name": "職務経歴書の作成", "checked": true }
+            ]
+        },
+        {
+            "name": "Contactページ作成",
+            "list": [
+                { "name": "コンポーネントの作成", "checked": true },
+                { "name": "スタイリング", "checked": true },
+                { "name": "フォーム送信先の設定", "checked": false }
+            ]
+        }
+    ],
+    "created": "2021-07-03T00:56:29.331Z"
+}
