@@ -5,7 +5,7 @@ module.exports = {
     poweredByHeader: false,
     reactStrictMode: true,
     trailingSlash: true,
-    sassOptions: {
-        includePaths: [path.join(__dirname, 'src/styles')],
+    env: {
+        resumeUrl: 'https://raw.githubusercontent.com/mktbsh/resume/master/docs/README.md',
     },
 }
