@@ -1,7 +1,7 @@
 {
     "contents": [
         {
-            "name": "SNS系リンクの設定",
+            "title": "SNS系リンクの設定",
             "list": [
                 { "name": "Twitter", "checked": false },
                 { "name": "Github", "checked": false },
@@ -10,7 +10,7 @@
             ]
         },
         {
-            "name": "各ページ作成",
+            "title": "各ページ作成",
             "list": [
                 { "name": "pages/index", "checked": true },
                 { "name": "pages/about", "checked": true },
@@ -18,7 +18,7 @@
             ]
         },
         {
-            "name": "Aboutページ作成",
+            "title": "Aboutページ作成",
             "list": [
                 { "name": "自己紹介の作成", "checked": false },
                 { "name": "職務経歴ページの作成", "checked": true },
@@ -26,7 +26,7 @@
             ]
         },
         {
-            "name": "Contactページ作成",
+            "title": "Contactページ作成",
             "list": [
                 { "name": "コンポーネントの作成", "checked": true },
                 { "name": "スタイリング", "checked": true },
