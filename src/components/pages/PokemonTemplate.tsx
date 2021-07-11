@@ -20,7 +20,7 @@ const strings = {
     header: {
       title: "ポケモン図鑑",
       summary: "カントー地方のみ",
-      changeLang: "",
+      changeLang: "言語を切り替える",
       lang: {
         ja: "日本語",
         en: "英語",
