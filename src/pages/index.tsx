@@ -1,4 +1,5 @@
 import { NextPage, GetStaticProps } from "next";
+import Link from "next/link";
 
 import { CommonMeta } from "components/atoms/CommonMeta";
 import { getFeaturesJson } from "lib/statics";
@@ -61,6 +62,16 @@ const Home: NextPage<StaticProps> = ({ features }) => {
             <p className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto">
               試したことをアウトプットするためのサイトです。
             </p>
+          </div>
+          <div className="text-center mb-20">
+            <h2 className="sm:text-2xl text-xl font-medium text-center title-font text-gray-900 mb-4">
+              ポケモン図鑑ページを追加（2021/07/11）
+            </h2>
+            <Link href="/pokemon">
+              <a className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto text-blue-700 underline">
+                ポケモン図鑑ページはこちら
+              </a>
+            </Link>
           </div>
           <div className="flex flex-wrap -m-4 justify-center">
             {features?.contents.map((feature, index) => (
