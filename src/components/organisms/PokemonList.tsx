@@ -2,7 +2,7 @@ import { VFC } from "react";
 
 import Link from "next/link";
 
-type PokemonCardProps = {
+export type PokemonCardProps = {
   id: number;
   name?: string;
   image?: string;
