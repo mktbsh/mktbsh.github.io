@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: UnownGothic;
+    src: url(/UnknownGothic1.06.ttf);
+}
