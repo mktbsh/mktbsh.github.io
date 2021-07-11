@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import NextLink from "next/link";
+
 import { Link } from "components/atoms/Link";
 import { HamburgerMenu } from "components/molecules/HamburgerMenu";
 import { classNames } from "utils/TailwindUtil";
@@ -16,12 +18,11 @@ const NavBar = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <a
-              className="text-gray-800 text-xl font-bold md:text-2xl hover:text-gray-700"
-              href="#"
-            >
-              mktbsh.github.io
-            </a>
+            <NextLink href="/">
+              <a className="text-gray-800 text-xl font-bold md:text-2xl hover:text-gray-700">
+                mktbsh.github.io
+              </a>
+            </NextLink>
           </div>
           <div className="flex md:hidden">
             <HamburgerMenu onClick={handleClick} />
