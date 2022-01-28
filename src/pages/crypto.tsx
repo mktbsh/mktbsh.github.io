@@ -1,9 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type WorkerMessage = {
+  type: "encoded" | "decoded";
+  value: string;
+};
 
 const CryptoPage = () => {
   const worker = useRef<Worker>();
   const [message, setMessage] = useState<string>();
-  const [result, setResult] = useState<string>();
+  const [reEncode, setReEncode] = useState<boolean>(false);
+  const [result, setResult] = useState<WorkerMessage>();
+
+  const resultText = useMemo(() => {
+    if (!result) return;
+    if (result.type === "encoded") {
+      return reEncode ? encodeURIComponent(result.value) : result.value;
+    }
+    if (result.type === "decoded") {
+      return result.value;
+    }
+  }, [result, reEncode]);
 
   useEffect(() => {
     if (worker.current) return;
@@ -11,13 +27,8 @@ const CryptoPage = () => {
     worker.current = new Worker("/rawinflate.worker.js");
     worker.current.addEventListener(
       "message",
-      ({
-        data: { type, value },
-      }: {
-        data: { type: string; value: string };
-      }) => {
-        console.log(type);
-        setResult(value);
+      ({ data }: { data: WorkerMessage }) => {
+        setResult(data);
       }
     );
   }, []);
@@ -34,9 +45,10 @@ const CryptoPage = () => {
   const handleDecClick = () => {
     if (!worker.current) return;
     if (!message) return;
+    const msg = reEncode ? decodeURIComponent(message) : message;
     worker.current.postMessage({
       type: "inflate",
-      message,
+      message: msg,
     });
   };
 
@@ -49,10 +61,19 @@ const CryptoPage = () => {
               <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
                 <div>
                   <label
-                    htmlFor="text"
+                    htmlFor="about"
                     className="block text-sm font-medium text-gray-700"
                   >
                     Text
+                  </label>
+                  <label className="inline-flex items-center mt-3">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-5 w-5 text-gray-600"
+                      checked={reEncode}
+                      onChange={(e) => setReEncode(e.currentTarget.checked)}
+                    />
+                    <span className="ml-2 text-gray-700">re-encode</span>
                   </label>
                   <div className="mt-1 h-64">
                     <textarea
@@ -87,7 +108,7 @@ const CryptoPage = () => {
           <div className="lg:w-1/2 w-full flex-1 bg-gray-100 lg:h-auto h-64 rounded p-4">
             <textarea
               className="w-full h-full border-2 border-dashed border-white-800 rounded p-4"
-              value={result}
+              value={resultText}
             />
           </div>
         </div>
