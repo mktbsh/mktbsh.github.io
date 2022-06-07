@@ -1,0 +1,1 @@
+self.__BUILD_MANIFEST={__rewrites:{beforeFiles:[],afterFiles:[],fallback:[]},"/":["static/chunks/pages/index-9aa7c5699bf80d09.js"],"/_error":["static/chunks/pages/_error-2280fa386d040b66.js"],"/crypto":["static/chunks/pages/crypto-ec1fa782223c821d.js"],sortedPages:["/","/_app","/_error","/crypto"]},self.__BUILD_MANIFEST_CB&&self.__BUILD_MANIFEST_CB();
