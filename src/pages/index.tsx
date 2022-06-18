@@ -57,26 +57,11 @@ const Home: NextPage<StaticProps> = ({ features }) => {
         <div className="container px-5 py-24 mx-auto">
           <div className="text-center mb-20">
             <h1 className="sm:text-3xl text-2xl font-medium text-center title-font text-gray-900 mb-4">
-              このアプリはNext.js × Github Pagesで運用中
+              このサイトはNext.js × Github Pagesで運用中
             </h1>
             <p className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto">
-              試したことをアウトプットするためのサイトです。
+              インプットしたものを試すための環境です。
             </p>
-          </div>
-          <div className="text-center mb-20">
-            <h2 className="sm:text-2xl text-xl font-medium text-center title-font text-gray-900 mb-4">
-              ポケモン図鑑ページを追加（2021/07/11）
-            </h2>
-            <Link href="/pokemon">
-              <a className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto text-blue-700 underline">
-                ポケモン図鑑ページはこちら
-              </a>
-            </Link>
-          </div>
-          <div className="flex flex-wrap -m-4 justify-center">
-            {features?.contents.map((feature, index) => (
-              <Feature key={index} {...feature} />
-            ))}
           </div>
         </div>
       </section>
