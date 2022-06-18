@@ -24,22 +24,6 @@ const NavBar = () => {
               </a>
             </NextLink>
           </div>
-          <div className="flex md:hidden">
-            <HamburgerMenu onClick={handleClick} />
-          </div>
-        </div>
-        <div
-          className={classNames(
-            isOpen ? "block" : "hidden",
-            "md:flex items-center"
-          )}
-        >
-          <div className="flex flex-col mt-2 md:flex-row md:mt-0 md:mx-1">
-            <Link href="/" name="Home" />
-            <Link href="/about" name="About" />
-            {/* <Link href="/" name="Components" /> */}
-            <Link href="/contact" name="Contact" />
-          </div>
         </div>
       </div>
     </nav>
