@@ -54,13 +54,10 @@ const Home: NextPage<StaticProps> = ({ features }) => {
         description="このGithub Pagesアプリは様々な技術を試す遊び場として運用されています。"
       />
       <section className="text-gray-600 body-font">
-        <div className="container px-5 py-24 mx-auto">
+        <div className="container px-5 py-12 mx-auto">
           <div className="text-center mb-20">
-            <h1 className="sm:text-3xl text-2xl font-medium text-center title-font text-gray-900 mb-4">
-              このサイトはNext.js × Github Pagesで運用中
-            </h1>
             <p className="text-base leading-relaxed xl:w-2/4 lg:w-3/4 mx-auto">
-              インプットしたものを試すための環境です。
+              インプットを試すための環境です。
             </p>
           </div>
         </div>
