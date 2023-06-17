@@ -5,28 +5,41 @@ on:
       - main
 jobs:
   build-deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@@v3
 
-      - name: setup node
-        uses: actions/setup-node@v1
+      - name: setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: "14.x"
+          node-version-file: ./.node-version
 
-      - name: cache dependencies
-        uses: actions/cache@v1
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-pnpm-store-
 
       - name: install
-        run: npm install --frozen-lockfile
+        run: pnpm install
 
       - name: build
-        run: npm run build
+        run: pnpm build
 
       - name: add nojekyll
         run: touch ./out/.nojekyll
