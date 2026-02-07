@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --graphite-dark: #0f0f0f;
+        --graphite-light: #1c1c1c;
+        --graphite-structural: #2a2a2a;
+        --accent-green: #00ff88;
+        --accent-red: #ff3e3e;
+        --perforation-color: rgba(0, 0, 0, 0.4);
+        --mono: "Space Mono", monospace;
+        --sans: "Inter", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--graphite-dark);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-family: var(--sans);
+      }
+
+      /* PERFORATED TEXTURE OVERLAY */
+      .perforated-canvas {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+          var(--perforation-color) 1.5px,
+          transparent 1.5px
+        );
+        background-size: 10px 10px;
+        pointer-events: none;
+        opacity: 0.6;
+        z-index: 1;
+      }
+
+      .structural-container {
+        position: relative;
+        width: 100%;
+        max-width: 1400px;
+        height: 400px;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+      }
+
+      .label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 24px;
+        border-left: 4px solid var(--graphite-structural);
+        padding-left: 20px;
+      }
+
+      .label-row h1 {
+        color: #fff;
+        font-size: 3rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -2px;
+        line-height: 0.9;
+      }
+
+      .status-badge {
+        font-family: var(--mono);
+        color: var(--accent-green);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .pulse {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-green);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-green);
+        animation: pulse-kf 1.5s infinite;
+      }
+
+      @keyframes pulse-kf {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+      }
+
+      /* THE TICKER TRACK */
+      .ticker-beam {
+        position: relative;
+        background: var(--graphite-light);
+        height: 120px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.5),
+          inset 0 0 20px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        mask-image: linear-gradient(
+          to right,
+          transparent,
+          black 15%,
+          black 85%,
+          transparent
+        );
+      }
+
+      .ticker-belt {
+        display: flex;
+        white-space: nowrap;
+        will-change: transform;
+        animation: scroll 60s linear infinite;
+      }
+
+      .stock-block {
+        padding: 0 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-right: 1px solid var(--graphite-structural);
+        transition: background 0.3s ease;
+        cursor: pointer;
+      }
+
+      .stock-block:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .stock-symbol {
+        font-family: var(--sans);
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #eee;
+        margin-bottom: 4px;
+      }
+
+      .stock-data {
+        font-family: var(--mono);
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+      }
+
+      .stock-price {
+        font-size: 1.2rem;
+        color: #888;
+      }
+
+      .stock-change {
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .up {
+        color: var(--accent-green);
+      }
+      .down {
+        color: var(--accent-red);
+      }
+
+      /* STRUCTURAL DECORATIONS */
+      .bolt {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #222;
+        border-radius: 2px;
+        box-shadow:
+          inset 2px 2px 4px rgba(0, 0, 0, 0.8),
+          1px 1px 1px rgba(255, 255, 255, 0.05);
+      }
+
+      .tl {
+        top: 10px;
+        left: 10px;
+      }
+      .tr {
+        top: 10px;
+        right: 10px;
+      }
+      .bl {
+        bottom: 10px;
+        left: 10px;
+      }
+      .br {
+        bottom: 10px;
+        right: 10px;
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* REVEAL ANIMATION */
+      .reveal {
+        animation: reveal-up 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      @keyframes reveal-up {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="perforated-canvas"></div>
+
+    <main class="structural-container">
+      <div class="label-row reveal" style="animation-delay: 0.1s">
+        <div>
+          <p
+            style="
+              color: #555;
+              font-size: 0.7rem;
+              font-family: var(--mono);
+              text-transform: uppercase;
+              letter-spacing: 4px;
+            "
+          >
+            Structural Markets
+          </p>
+          <h1>INDEX<br />CORE 01</h1>
+        </div>
+        <div class="status-badge">
+          <div class="pulse"></div>
+          LIVE FEED SECURED
+        </div>
+      </div>
+
+      <div class="ticker-beam reveal" style="animation-delay: 0.3s">
+        <div class="bolt tl"></div>
+        <div class="bolt tr"></div>
+        <div class="bolt bl"></div>
+        <div class="bolt br"></div>
+
+        <div class="ticker-belt" id="ticker-belt">
+          <!-- Ticker content will be injected twice for seamless loop -->
+        </div>
+      </div>
+
+      <div class="reveal" style="margin-top: 30px; animation-delay: 0.5s">
+        <p
+          style="
+            color: #444;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            max-width: 400px;
+            line-height: 1.6;
+          "
+        >
+          DATA ARCHITECTURE V.4.0 // PERFORATED GRAPHITE INTERFACE // ALL
+          QUANTITATIVE MEASURES REAL-TIME.
+        </p>
+      </div>
+    </main>
+
+    <script>
+      const stocks = [
+        { symbol: "AERO", price: "412.04", change: "+2.41%", up: true },
+        { symbol: "VOID", price: "88.12", change: "-1.04%", up: false },
+        { symbol: "ION", price: "1,204.90", change: "+0.88%", up: true },
+        { symbol: "VERT", price: "56.00", change: "+4.12%", up: true },
+        { symbol: "KORE", price: "210.45", change: "-0.22%", up: false },
+        { symbol: "STRT", price: "943.10", change: "+1.15%", up: true },
+        { symbol: "NEXA", price: "32.40", change: "-5.10%", up: false },
+        { symbol: "OBEL", price: "711.22", change: "+0.04%", up: true },
+      ];
+
+      const belt = document.getElementById("ticker-belt");
+
+      function createStockHTML(stock) {
+        return `
+                <div class="stock-block">
+                    <div class="stock-symbol">${stock.symbol}</div>
+                    <div class="stock-data">
+                        <span class="stock-price">${stock.price}</span>
+                        <span class="stock-change ${stock.up ? "up" : "down"}">
+                            ${stock.up ? "▲" : "▼"} ${stock.change}
+                        </span>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Duplicate for infinite scroll effect
+      const tickerContent = stocks.map((s) => createStockHTML(s)).join("");
+      belt.innerHTML = tickerContent + tickerContent;
+
+      // Dynamic price jitter to simulate "Live"
+      setInterval(() => {
+        const prices = document.querySelectorAll(".stock-price");
+        const randomIdx = Math.floor(Math.random() * prices.length);
+        const currentPrice = parseFloat(
+          prices[randomIdx].innerText.replace(",", ""),
+        );
+        const jitter = (Math.random() - 0.5) * 0.5;
+        const newPrice = (currentPrice + jitter).toFixed(2);
+        prices[randomIdx].innerText = newPrice
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }, 1000);
+    </script>
+  </body>
+</html>

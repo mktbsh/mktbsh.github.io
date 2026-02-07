@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;800&family=JetBrains+Mono:wght@500;700&display=swap");
+
+      :root {
+        --bg: #030305;
+        --strata-1: #0a0a0c;
+        --strata-2: #121216;
+        --neon-cyan: #00f2ff;
+        --neon-pink: #ff00c1;
+        --neon-lime: #bdff00;
+        --prism-gradient: linear-gradient(
+          90deg,
+          rgba(255, 0, 193, 0.3) 0%,
+          rgba(0, 242, 255, 0.3) 25%,
+          rgba(189, 255, 0, 0.3) 50%,
+          rgba(0, 242, 255, 0.3) 75%,
+          rgba(255, 0, 193, 0.3) 100%
+        );
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(circle at 50% 50%, #1a1a2e 0%, transparent 80%),
+          url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        background-blend-mode: overlay;
+        font-family: "Inter", sans-serif;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: #fff;
+      }
+
+      /* The Etched Container */
+      .ticker-system {
+        position: relative;
+        width: 100%;
+        max-width: 1400px;
+        padding: 40px;
+        background: rgba(10, 10, 12, 0.8);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+
+      /* Prismatic Etching Layer */
+      .ticker-system::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--prism-gradient);
+        background-size: 200% auto;
+        animation: prism-shift 4s linear infinite;
+      }
+
+      .ticker-system::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--prism-gradient);
+        background-size: 200% auto;
+        animation: prism-shift 4s linear infinite reverse;
+      }
+
+      /* Strata Layers */
+      .strata-background {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: 0.3;
+      }
+
+      .stratum {
+        position: absolute;
+        width: 150%;
+        height: 100px;
+        background: linear-gradient(
+          135deg,
+          transparent 45%,
+          rgba(255, 255, 255, 0.05) 50%,
+          transparent 55%
+        );
+        transform: rotate(-15deg) translateY(-50%);
+        pointer-events: none;
+      }
+
+      /* Main Ticker Loop */
+      .ticker-wrap {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+      }
+
+      .ticker-track {
+        display: inline-flex;
+        animation: scroll 60s linear infinite;
+        will-change: transform;
+      }
+
+      .ticker-track:hover {
+        animation-play-state: paused;
+      }
+
+      /* Stock Item Styling */
+      .stock-item {
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+        position: relative;
+      }
+
+      .stock-item::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        height: 40px;
+        width: 1px;
+        background: linear-gradient(
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+      }
+
+      .symbol-wrapper {
+        position: relative;
+        margin-right: 15px;
+      }
+
+      .symbol {
+        font-family: "Inter", sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        letter-spacing: -1px;
+        color: #fff;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 1;
+      }
+
+      .symbol-ghost {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        font-weight: 800;
+        font-size: 2rem;
+        color: var(--neon-cyan);
+        opacity: 0.4;
+        filter: blur(4px);
+        z-index: 0;
+      }
+
+      .data-strata {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .price {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .change {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .up {
+        color: var(--neon-lime);
+        text-shadow: 0 0 10px rgba(189, 255, 0, 0.4);
+      }
+      .down {
+        color: var(--neon-pink);
+        text-shadow: 0 0 10px rgba(255, 0, 193, 0.4);
+      }
+
+      /* Scanning Line Effect */
+      .scan-line {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 242, 255, 0.05),
+          transparent
+        );
+        transform: skewX(-20deg);
+        animation: scan 8s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      /* Animations */
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      @keyframes prism-shift {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 200% 50%;
+        }
+      }
+
+      @keyframes scan {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 200%;
+        }
+      }
+
+      .header-meta {
+        position: absolute;
+        top: -25px;
+        left: 40px;
+        font-size: 0.65rem;
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: rgba(255, 255, 255, 0.4);
+        display: flex;
+        gap: 20px;
+      }
+
+      .header-meta span {
+        color: var(--neon-cyan);
+      }
+
+      .glitch-overlay {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.1) 0px,
+          rgba(0, 0, 0, 0.1) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+        pointer-events: none;
+        opacity: 0.2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticker-system">
+      <div class="header-meta">
+        <p>System Status: <span>Operational</span></p>
+        <p>Data Feed: <span>Prismatic-09</span></p>
+        <p>Latency: <span>0.002ms</span></p>
+      </div>
+
+      <div class="strata-background">
+        <div class="stratum" style="top: 20%; opacity: 0.1"></div>
+        <div
+          class="stratum"
+          style="top: 50%; opacity: 0.05; animation-direction: reverse"
+        ></div>
+        <div class="stratum" style="top: 80%; opacity: 0.1"></div>
+      </div>
+
+      <div class="scan-line"></div>
+      <div class="glitch-overlay"></div>
+
+      <div class="ticker-wrap">
+        <div class="ticker-track" id="track">
+          <!-- Ticker Content Generated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const stocks = [
+        { symbol: "VOID", price: "4,209.12", change: "+12.4%", up: true },
+        { symbol: "NEON", price: "882.00", change: "-2.1%", up: false },
+        { symbol: "PHSM", price: "1,024.99", change: "+0.8%", up: true },
+        { symbol: "LYRA", price: "241.50", change: "+5.7%", up: true },
+        { symbol: "KROM", price: "6,712.33", change: "-14.2%", up: false },
+        { symbol: "ZENT", price: "0.442", change: "+22.1%", up: true },
+        { symbol: "OSIS", price: "99.12", change: "-0.4%", up: false },
+        { symbol: "VECT", price: "3,110.00", change: "+4.1%", up: true },
+      ];
+
+      const track = document.getElementById("track");
+
+      function createStockItem(stock) {
+        return `
+                <div class="stock-item">
+                    <div class="symbol-wrapper">
+                        <div class="symbol-ghost">${stock.symbol}</div>
+                        <div class="symbol">${stock.symbol}</div>
+                    </div>
+                    <div class="data-strata">
+                        <div class="price">${stock.price}</div>
+                        <div class="change ${stock.up ? "up" : "down"}">
+                            ${stock.up ? "▲" : "▼"} ${stock.change}
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Double the array for seamless looping
+      const content = [...stocks, ...stocks].map(createStockItem).join("");
+      track.innerHTML = content;
+
+      // Interaction: Slight prismatic shift on mouse move
+      const system = document.querySelector(".ticker-system");
+      system.addEventListener("mousemove", (e) => {
+        const rect = system.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        system.style.setProperty(
+          "--prism-gradient",
+          `linear-gradient(${x + 45}deg, rgba(255,0,193,0.3) 0%, rgba(0,242,255,0.3) 25%, rgba(189,255,0,0.3) 50%, rgba(0,242,255,0.3) 75%, rgba(255,0,193,0.3) 100%)`,
+        );
+      });
+    </script>
+  </body>
+</html>

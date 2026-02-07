@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;800&family=JetBrains+Mono:wght@300;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #05070a;
+        --glass: rgba(255, 255, 255, 0.03);
+        --border: rgba(255, 255, 255, 0.12);
+        --accent-up: #00ffc3;
+        --accent-down: #ff3d71;
+        --text-main: #f8fafc;
+        --refraction: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0) 50%,
+          rgba(255, 255, 255, 0.05) 100%
+        );
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        perspective: 1000px;
+      }
+
+      /* Background Light Strata */
+      .strata-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background:
+          radial-gradient(
+            circle at 20% 30%,
+            rgba(0, 255, 195, 0.05) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 80% 70%,
+            rgba(255, 61, 113, 0.05) 0%,
+            transparent 40%
+          );
+        filter: blur(80px);
+      }
+
+      .ticker-viewport {
+        width: 100%;
+        max-width: 1400px;
+        padding: 60px;
+        position: relative;
+        animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(40px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .ticker-header {
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-left: 1px solid var(--border);
+        padding-left: 24px;
+      }
+
+      .ticker-header h1 {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .market-status {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--accent-up);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--accent-up);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-up);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* The Stratum Glass Layer */
+      .ticker-container {
+        position: relative;
+        background: var(--glass);
+        backdrop-filter: blur(30px) saturate(150%);
+        -webkit-backdrop-filter: blur(30px) saturate(150%);
+        border: 1px solid var(--border);
+        padding: 40px 0;
+        overflow: hidden;
+        box-shadow:
+          0 25px 50px -12px rgba(0, 0, 0, 0.5),
+          inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      }
+
+      /* Refractive Flare Effect */
+      .ticker-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.05),
+          transparent
+        );
+        transition: 0.5s;
+        pointer-events: none;
+      }
+
+      .ticker-container:hover::before {
+        left: 100%;
+        transition: 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .ticker-track {
+        display: flex;
+        gap: 80px;
+        animation: scroll 40s linear infinite;
+        width: max-content;
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(calc(-50% - 40px));
+        }
+      }
+
+      .stock-item {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 220px;
+        position: relative;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .stock-item:hover {
+        transform: translateY(-4px);
+      }
+
+      .symbol-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .symbol {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .name {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .price-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .price {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.25rem;
+        font-weight: 500;
+      }
+
+      .change {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 2px;
+      }
+
+      .up {
+        color: var(--accent-up);
+        background: rgba(0, 255, 195, 0.05);
+      }
+      .down {
+        color: var(--accent-down);
+        background: rgba(255, 61, 113, 0.05);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        opacity: 0.4;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+      }
+
+      .metric-label {
+        display: block;
+        text-transform: uppercase;
+        font-size: 0.5rem;
+        margin-bottom: 2px;
+      }
+
+      /* Decorative "Prism" Corners */
+      .prism-decor {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--border);
+        z-index: 2;
+      }
+
+      .top-left {
+        top: -1px;
+        left: -1px;
+        border-right: none;
+        border-bottom: none;
+      }
+      .bottom-right {
+        bottom: -1px;
+        right: -1px;
+        border-left: none;
+        border-top: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="strata-bg"></div>
+
+    <div class="ticker-viewport">
+      <header class="ticker-header">
+        <div>
+          <h1>Global Equities / Stratum Alpha</h1>
+        </div>
+        <div class="market-status">
+          <div class="pulse-dot"></div>
+          LIVE MARKET DATA
+        </div>
+      </header>
+
+      <div class="ticker-container">
+        <div class="prism-decor top-left"></div>
+        <div class="prism-decor bottom-right"></div>
+
+        <div class="ticker-track">
+          <!-- Original Set -->
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">LYRA</span>
+              <span class="name">Lyra Systems</span>
+            </div>
+            <div class="price-row">
+              <span class="price">2,412.80</span>
+              <span class="change up">+1.24%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>1.2M</div>
+              <div><span class="metric-label">Cap</span>410B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">AURA</span>
+              <span class="name">Aura Energy</span>
+            </div>
+            <div class="price-row">
+              <span class="price">894.15</span>
+              <span class="change down">-0.42%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>450K</div>
+              <div><span class="metric-label">Cap</span>122B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">VLTX</span>
+              <span class="name">Velotix Corp</span>
+            </div>
+            <div class="price-row">
+              <span class="price">142.02</span>
+              <span class="change up">+4.89%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>3.8M</div>
+              <div><span class="metric-label">Cap</span>56B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">GLSS</span>
+              <span class="name">Glass Dynamics</span>
+            </div>
+            <div class="price-row">
+              <span class="price">3,110.45</span>
+              <span class="change down">-1.12%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>890K</div>
+              <div><span class="metric-label">Cap</span>890B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">NEON</span>
+              <span class="name">Neon Labs</span>
+            </div>
+            <div class="price-row">
+              <span class="price">56.77</span>
+              <span class="change up">+0.05%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>12M</div>
+              <div><span class="metric-label">Cap</span>12B</div>
+            </div>
+          </div>
+
+          <!-- Clone for Seamless Loop -->
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">LYRA</span>
+              <span class="name">Lyra Systems</span>
+            </div>
+            <div class="price-row">
+              <span class="price">2,412.80</span>
+              <span class="change up">+1.24%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>1.2M</div>
+              <div><span class="metric-label">Cap</span>410B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">AURA</span>
+              <span class="name">Aura Energy</span>
+            </div>
+            <div class="price-row">
+              <span class="price">894.15</span>
+              <span class="change down">-0.42%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>450K</div>
+              <div><span class="metric-label">Cap</span>122B</div>
+            </div>
+          </div>
+
+          <div class="stock-item">
+            <div class="symbol-row">
+              <span class="symbol">VLTX</span>
+              <span class="name">Velotix Corp</span>
+            </div>
+            <div class="price-row">
+              <span class="price">142.02</span>
+              <span class="change up">+4.89%</span>
+            </div>
+            <div class="metrics">
+              <div><span class="metric-label">Vol</span>3.8M</div>
+              <div><span class="metric-label">Cap</span>56B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Subtle Mouse Interaction for Parallax
+      document.addEventListener("mousemove", (e) => {
+        const container = document.querySelector(".ticker-viewport");
+        const x = (window.innerWidth / 2 - e.pageX) / 50;
+        const y = (window.innerHeight / 2 - e.pageY) / 50;
+        container.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+      });
+
+      // Dynamic price fluctuations for "Live" feel
+      const prices = document.querySelectorAll(".price");
+      setInterval(() => {
+        prices.forEach((p) => {
+          if (Math.random() > 0.8) {
+            const current = parseFloat(p.innerText.replace(",", ""));
+            const change = (Math.random() - 0.5) * 2;
+            p.innerText = (current + change).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+            p.style.color =
+              change > 0 ? "var(--accent-up)" : "var(--accent-down)";
+            setTimeout(() => (p.style.color = "var(--text-main)"), 600);
+          }
+        });
+      }, 1000);
+    </script>
+  </body>
+</html>

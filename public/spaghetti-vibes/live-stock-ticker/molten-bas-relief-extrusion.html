@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0b;
+        --metal-surface: #121214;
+        --molten-glow: rgba(255, 100, 0, 0.4);
+        --positive: #00ffaa;
+        --negative: #ff3344;
+        --text-main: #e0e0e0;
+      }
+
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text-main);
+        font-family: "Inter", sans-serif;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      /* Molten Bas-Relief Surface */
+      .stage {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        background: radial-gradient(
+          circle at 50% 50%,
+          #1a1a1c 0%,
+          #0a0a0b 100%
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        perspective: 1000px;
+      }
+
+      .background-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 15vw;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.02);
+        letter-spacing: -0.05em;
+        pointer-events: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      /* The Recessed Track (Bas-Relief) */
+      .ticker-viewport {
+        position: relative;
+        width: 100%;
+        height: 120px;
+        background: #080809;
+        box-shadow:
+          inset 0 10px 20px rgba(0, 0, 0, 0.8),
+          inset 0 -10px 20px rgba(255, 255, 255, 0.02),
+          0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      /* Extruded Molten Items */
+      .ticker-track {
+        display: flex;
+        white-space: nowrap;
+        will-change: transform;
+        animation: scroll 40s linear infinite;
+      }
+
+      .ticker-item {
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+        height: 80px;
+        margin: 0 10px;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #161618, #0d0d0e);
+        box-shadow:
+          8px 8px 16px rgba(0, 0, 0, 0.5),
+          -4px -4px 12px rgba(255, 255, 255, 0.03),
+          inset 1px 1px 1px rgba(255, 255, 255, 0.05);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.02);
+      }
+
+      .ticker-item:hover {
+        transform: scale(1.05) translateY(-5px);
+        box-shadow:
+          15px 15px 30px rgba(0, 0, 0, 0.7),
+          -5px -5px 15px rgba(255, 255, 255, 0.05),
+          0 0 20px var(--molten-glow);
+        border-color: rgba(255, 100, 0, 0.3);
+      }
+
+      .symbol {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-right: 15px;
+        letter-spacing: -0.02em;
+        background: linear-gradient(to bottom, #fff, #888);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .data-group {
+        display: flex;
+        flex-direction: column;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .price {
+        font-size: 1.1rem;
+        color: #fff;
+        margin-bottom: 2px;
+      }
+
+      .change {
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+
+      .change.up {
+        color: var(--positive);
+        text-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
+      }
+      .change.down {
+        color: var(--negative);
+        text-shadow: 0 0 10px rgba(255, 51, 68, 0.3);
+      }
+
+      .change.up::before {
+        content: "▲ ";
+      }
+      .change.down::before {
+        content: "▼ ";
+      }
+
+      /* Liquid Glow Overlay */
+      .ticker-viewport::before,
+      .ticker-viewport::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 200px;
+        height: 100%;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .ticker-viewport::before {
+        left: 0;
+        background: linear-gradient(to right, var(--bg), transparent);
+      }
+
+      .ticker-viewport::after {
+        right: 0;
+        background: linear-gradient(to left, var(--bg), transparent);
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Interactive "Molten" Cursor Shadow */
+      .glow-follow {
+        position: fixed;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 80, 0, 0.05) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+      }
+
+      .live-indicator {
+        position: absolute;
+        top: -40px;
+        left: 50px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.7rem;
+        font-family: "JetBrains Mono";
+        letter-spacing: 0.2em;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--negative);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.3;
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow-follow" id="glow"></div>
+
+    <div class="stage">
+      <div class="background-label">EXCHANGE</div>
+
+      <div class="ticker-viewport">
+        <div class="live-indicator">
+          <div class="dot"></div>
+          Live Market Feed
+        </div>
+
+        <div class="ticker-track" id="track">
+          <!-- Ticker Items Repeated for Infinite Loop -->
+          <div class="ticker-item">
+            <div class="symbol">NVDA</div>
+            <div class="data-group">
+              <div class="price">875.28</div>
+              <div class="change up">4.2%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">AAPL</div>
+            <div class="data-group">
+              <div class="price">172.62</div>
+              <div class="change down">0.8%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">BTC</div>
+            <div class="data-group">
+              <div class="price">64,210</div>
+              <div class="change up">2.1%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">TSLA</div>
+            <div class="data-group">
+              <div class="price">163.57</div>
+              <div class="change down">1.4%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">MSFT</div>
+            <div class="data-group">
+              <div class="price">415.50</div>
+              <div class="change up">0.3%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">ETH</div>
+            <div class="data-group">
+              <div class="price">3,452.10</div>
+              <div class="change down">2.7%</div>
+            </div>
+          </div>
+          <!-- Cloned for seamless loop -->
+          <div class="ticker-item">
+            <div class="symbol">NVDA</div>
+            <div class="data-group">
+              <div class="price">875.28</div>
+              <div class="change up">4.2%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">AAPL</div>
+            <div class="data-group">
+              <div class="price">172.62</div>
+              <div class="change down">0.8%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">BTC</div>
+            <div class="data-group">
+              <div class="price">64,210</div>
+              <div class="change up">2.1%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">TSLA</div>
+            <div class="data-group">
+              <div class="price">163.57</div>
+              <div class="change down">1.4%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">MSFT</div>
+            <div class="data-group">
+              <div class="price">415.50</div>
+              <div class="change up">0.3%</div>
+            </div>
+          </div>
+          <div class="ticker-item">
+            <div class="symbol">ETH</div>
+            <div class="data-group">
+              <div class="price">3,452.10</div>
+              <div class="change down">2.7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const glow = document.getElementById("glow");
+      const track = document.getElementById("track");
+
+      window.addEventListener("mousemove", (e) => {
+        glow.style.left = e.clientX + "px";
+        glow.style.top = e.clientY + "px";
+      });
+
+      // Pause on hover
+      track.addEventListener("mouseenter", () => {
+        track.style.animationPlayState = "paused";
+      });
+
+      track.addEventListener("mouseleave", () => {
+        track.style.animationPlayState = "running";
+      });
+
+      // Subtle random price fluctuations
+      setInterval(() => {
+        const prices = document.querySelectorAll(".price");
+        const randomIdx = Math.floor(Math.random() * prices.length);
+        const currentPrice = parseFloat(
+          prices[randomIdx].innerText.replace(",", ""),
+        );
+        const change = (Math.random() - 0.5) * 2;
+        const newPrice = (currentPrice + change).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+        prices[randomIdx].style.color = change > 0 ? "#00ffaa" : "#ff3344";
+        prices[randomIdx].innerText = newPrice;
+
+        setTimeout(() => {
+          prices[randomIdx].style.color = "#fff";
+        }, 1000);
+      }, 2000);
+    </script>
+  </body>
+</html>

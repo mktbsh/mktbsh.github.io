@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercury Stock Ticker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --chrome: linear-gradient(
+          145deg,
+          #f0f0f0 0%,
+          #999 45%,
+          #ffffff 50%,
+          #888 55%,
+          #333 100%
+        );
+        --mercury-bg: #0a0a0b;
+        --accent-up: #00ffaa;
+        --accent-down: #ff3366;
+        --liquid-silver: #c0c0c0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        background-color: var(--mercury-bg);
+        color: white;
+        font-family: "Inter", sans-serif;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      /* Molten Filter Effect */
+      .liquid-container {
+        filter: url("#goo");
+        position: relative;
+      }
+
+      /* The Main Ticker Component */
+      .ticker-canvas {
+        width: 90vw;
+        max-width: 1200px;
+        height: 500px;
+        background: radial-gradient(
+          circle at 20% 20%,
+          #1a1a1d 0%,
+          #050505 100%
+        );
+        border-radius: 40px;
+        position: relative;
+        padding: 40px;
+        box-shadow:
+          0 50px 100px -20px rgba(0, 0, 0, 0.8),
+          inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        z-index: 10;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: -2px;
+        font-size: 2.5rem;
+        background: var(--chrome);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+      }
+
+      .market-status {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        color: var(--accent-up);
+        background: rgba(0, 255, 170, 0.1);
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 255, 170, 0.2);
+        animation: pulse 2s infinite ease-in-out;
+      }
+
+      /* Kinetic Price Display */
+      .price-section {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+
+      .symbol-meta {
+        font-family: "JetBrains Mono", monospace;
+        opacity: 0.5;
+        letter-spacing: 4px;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .live-price {
+        font-size: 8rem;
+        font-weight: 700;
+        letter-spacing: -5px;
+        line-height: 0.9;
+        position: relative;
+        display: inline-block;
+        background: linear-gradient(to bottom, #fff 40%, #888 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .live-price:hover {
+        transform: scale(1.02) skewX(-2deg);
+      }
+
+      .delta {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.5rem;
+        margin-top: 20px;
+        display: flex;
+        gap: 20px;
+      }
+
+      .delta-val.up {
+        color: var(--accent-up);
+      }
+
+      /* Infinite Mercury Ticker Tape */
+      .ticker-tape {
+        width: 100%;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .tape-track {
+        display: flex;
+        white-space: nowrap;
+        animation: slide 30s linear infinite;
+      }
+
+      .tape-item {
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .tape-symbol {
+        font-weight: 700;
+        margin-right: 12px;
+        color: var(--liquid-silver);
+      }
+
+      .tape-val {
+        font-weight: 400;
+      }
+
+      /* Molten Elements */
+      .mercury-orb {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        top: -100px;
+        right: -100px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      @keyframes slide {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .chart-glimmer {
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+        width: 200px;
+        height: 100px;
+        opacity: 0.3;
+      }
+
+      .chart-line {
+        fill: none;
+        stroke: url(#gradient-stroke);
+        stroke-width: 3;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: draw 4s ease-out forwards;
+      }
+
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticker-canvas">
+      <div class="mercury-orb"></div>
+
+      <div class="header">
+        <div class="brand">Mercury.io</div>
+        <div class="market-status">● LIVE TRADING</div>
+      </div>
+
+      <div class="price-section">
+        <div class="symbol-meta">INDEXED / USD / AMZN</div>
+        <div class="live-price" id="main-price">3,421.50</div>
+        <div class="delta">
+          <span class="delta-val up">+124.20 (3.62%)</span>
+          <span style="opacity: 0.3">VOL: 4.2M</span>
+        </div>
+      </div>
+
+      <div class="chart-glimmer">
+        <svg viewBox="0 0 200 100">
+          <defs>
+            <linearGradient
+              id="gradient-stroke"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" style="stop-color: #444; stop-opacity: 1" />
+              <stop offset="50%" style="stop-color: #fff; stop-opacity: 1" />
+              <stop
+                offset="100%"
+                style="stop-color: #00ffaa; stop-opacity: 1"
+              />
+            </linearGradient>
+          </defs>
+          <path
+            class="chart-line"
+            d="M0,80 C20,80 40,20 60,40 C80,60 100,10 120,30 C140,50 160,5 180,15 L200,10"
+          />
+        </svg>
+      </div>
+
+      <div class="ticker-tape">
+        <div class="tape-track">
+          <!-- Duplicate for seamless loop -->
+          <div class="tape-item">
+            <span class="tape-symbol">BTC</span
+            ><span class="tape-val">64,231.10</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">ETH</span
+            ><span class="tape-val">3,452.05</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">TSLA</span
+            ><span class="tape-val">241.20</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">AAPL</span
+            ><span class="tape-val">192.55</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">NVDA</span
+            ><span class="tape-val">824.11</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">BTC</span
+            ><span class="tape-val">64,231.10</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">ETH</span
+            ><span class="tape-val">3,452.05</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">TSLA</span
+            ><span class="tape-val">241.20</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">AAPL</span
+            ><span class="tape-val">192.55</span>
+          </div>
+          <div class="tape-item">
+            <span class="tape-symbol">NVDA</span
+            ><span class="tape-val">824.11</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gooey Filter for Molten Kineticism -->
+    <svg
+      style="visibility: hidden; position: absolute"
+      width="0"
+      height="0"
+      xmlns="http://www.w3.org/2000/svg"
+      version="1.1"
+    >
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+            result="goo"
+          />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+        </filter>
+      </defs>
+    </svg>
+
+    <script>
+      const priceEl = document.getElementById("main-price");
+      let currentPrice = 3421.5;
+
+      function updatePrice() {
+        const noise = (Math.random() - 0.5) * 2;
+        currentPrice += noise;
+
+        // Format with commas
+        const formatted = currentPrice.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+        priceEl.innerText = formatted;
+
+        // Fluid kinetic feedback
+        priceEl.style.transform = `translateY(${noise * 2}px) scale(${1 + Math.abs(noise) / 100})`;
+
+        setTimeout(() => {
+          priceEl.style.transform = `translateY(0) scale(1)`;
+        }, 100);
+      }
+
+      setInterval(updatePrice, 1500);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercury Ticker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@800&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #030305;
+        --mercury: linear-gradient(145deg, #e0e0e0, #888891, #4a4a4f, #1a1a1c);
+        --neon-cyan: #00f3ff;
+        --neon-magenta: #ff00c8;
+        --surface: rgba(255, 255, 255, 0.03);
+        --border-sheen: rgba(255, 255, 255, 0.15);
+      }
+
+      body {
+        background-color: var(--bg);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+      }
+
+      .ticker-viewport {
+        width: 100%;
+        height: 180px;
+        background: radial-gradient(
+          circle at 50% 50%,
+          #111115 0%,
+          #030305 100%
+        );
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid var(--border-sheen);
+        border-bottom: 1px solid var(--border-sheen);
+      }
+
+      /* The Mercury Liquid Effect Overlay */
+      .ticker-viewport::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.05) 0%,
+          transparent 45%,
+          rgba(0, 0, 0, 0.4) 50%,
+          transparent 55%,
+          rgba(255, 255, 255, 0.05) 100%
+        );
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .ticker-track {
+        display: flex;
+        white-space: nowrap;
+        will-change: transform;
+        animation: scroll 30s linear infinite;
+      }
+
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 20px 40px;
+        margin: 0 10px;
+        border-radius: 100px;
+        background: var(--surface);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-sheen);
+        position: relative;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .ticker-item:hover {
+        transform: scale(1.05) translateY(-5px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 15px 40px rgba(0, 243, 255, 0.15);
+      }
+
+      /* Mercury droplet highlight */
+      .ticker-item::after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 20%;
+        width: 60%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        border-radius: 50%;
+      }
+
+      .symbol {
+        font-weight: 800;
+        font-size: 1.8rem;
+        letter-spacing: -1px;
+        color: #fff;
+        margin-right: 20px;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      }
+
+      .price-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .price {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.2rem;
+        color: #d1d1d6;
+        letter-spacing: -0.5px;
+      }
+
+      .change {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
+
+      .up {
+        color: var(--neon-cyan);
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+      }
+      .down {
+        color: var(--neon-magenta);
+        text-shadow: 0 0 10px rgba(255, 0, 200, 0.5);
+      }
+
+      /* Liquid Lens Flare */
+      .lens-flare {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(0, 243, 255, 0.05) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        top: -200px;
+        left: -100px;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        animation: drift 15s ease-in-out infinite alternate;
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate(0, 0);
+        }
+        to {
+          transform: translate(100vw, 50px);
+        }
+      }
+
+      .label-overlay {
+        position: absolute;
+        top: 20px;
+        left: 50px;
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="label-overlay">Viscous Protocol // Real-time Stream</div>
+    <div class="lens-flare"></div>
+
+    <div class="ticker-viewport">
+      <div class="ticker-track">
+        <!-- First Set -->
+        <div class="ticker-item">
+          <div class="symbol">XRT</div>
+          <div class="price-group">
+            <div class="price">4,129.42</div>
+            <div class="change up">+2.41%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">NEO</div>
+          <div class="price-group">
+            <div class="price">0.9821</div>
+            <div class="change down">-0.14%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">LYN</div>
+          <div class="price-group">
+            <div class="price">12,402.00</div>
+            <div class="change up">+12.08%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">VSH</div>
+          <div class="price-group">
+            <div class="price">88.19</div>
+            <div class="change down">-1.22%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">ARC</div>
+          <div class="price-group">
+            <div class="price">214.50</div>
+            <div class="change up">+0.44%</div>
+          </div>
+        </div>
+        <!-- Duplicated for seamless loop -->
+        <div class="ticker-item">
+          <div class="symbol">XRT</div>
+          <div class="price-group">
+            <div class="price">4,129.42</div>
+            <div class="change up">+2.41%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">NEO</div>
+          <div class="price-group">
+            <div class="price">0.9821</div>
+            <div class="change down">-0.14%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">LYN</div>
+          <div class="price-group">
+            <div class="price">12,402.00</div>
+            <div class="change up">+12.08%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">VSH</div>
+          <div class="price-group">
+            <div class="price">88.19</div>
+            <div class="change down">-1.22%</div>
+          </div>
+        </div>
+        <div class="ticker-item">
+          <div class="symbol">ARC</div>
+          <div class="price-group">
+            <div class="price">214.50</div>
+            <div class="change up">+0.44%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Interactive viscosity: slowing down on hover
+      const track = document.querySelector(".ticker-track");
+      const items = document.querySelectorAll(".ticker-item");
+
+      items.forEach((item) => {
+        item.addEventListener("mouseenter", () => {
+          track.style.animationPlayState = "paused";
+        });
+        item.addEventListener("mouseleave", () => {
+          track.style.animationPlayState = "running";
+        });
+      });
+
+      // Subtle randomized price flicker for "cybernetic" feel
+      setInterval(() => {
+        const upItems = document.querySelectorAll(".up");
+        const target = upItems[Math.floor(Math.random() * upItems.length)];
+        target.style.opacity = "0.7";
+        setTimeout(() => (target.style.opacity = "1"), 50);
+      }, 3000);
+    </script>
+  </body>
+</html>
