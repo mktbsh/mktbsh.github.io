@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="ja" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+
+    <!-- Basic SEO -->
+    <title>
+      Serial Scanner — ウエハース シリアルナンバー カメラ読み取りアプリ
+    </title>
+    <meta
+      name="description"
+      content="バンダイ キャンディのウエハースに付属するシリアルナンバーをカメラで連続スキャン。ブラウザだけで動作、アプリ不要。OCRで自動認識し、まとめてコピー。キャンペーン応募を効率化。"
+    />
+    <meta
+      name="keywords"
+      content="シリアルナンバー,読み取り,スキャナー,OCR,ウエハース,バンダイ,キャンディ,キャンペーン,カメラ,シリアルコード"
+    />
+    <meta name="author" content="Serial Scanner" />
+    <meta name="robots" content="index, follow" />
+    <link
+      rel="canonical"
+      href="https://mktbsh.github.io/spaghetti-vibes/serial-scanner/"
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Serial Scanner — ウエハース シリアルナンバー読み取り"
+    />
+    <meta
+      property="og:description"
+      content="ウエハースのシリアルナンバーをカメラで連続スキャン。ブラウザだけで動作、インストール不要。まとめてコピーしてキャンペーン応募を効率化。"
+    />
+    <meta property="og:site_name" content="Serial Scanner" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta
+      property="og:image"
+      content="https://mktbsh.github.io/spaghetti-vibes/serial-scanner/ogp.png"
+    />
+    <meta
+      property="og:url"
+      content="https://mktbsh.github.io/spaghetti-vibes/serial-scanner/"
+    />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Serial Scanner — ウエハース シリアルナンバー読み取り"
+    />
+    <meta
+      name="twitter:description"
+      content="ウエハースのシリアルナンバーをカメラで連続スキャン。ブラウザだけで動作、インストール不要。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://mktbsh.github.io/spaghetti-vibes/serial-scanner/ogp.png"
+    />
+
+    <!-- PWA / Mobile -->
+    <meta name="theme-color" content="#0a0a0f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Serial Scanner" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Serial Scanner" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Serial Scanner",
+        "alternateName": "シリアルナンバー読み取りアプリ",
+        "description": "バンダイ キャンディのウエハースに付属するシリアルナンバーをカメラで連続スキャンするWebアプリ。ブラウザだけで動作し、インストール不要。",
+        "url": "https://mktbsh.github.io/spaghetti-vibes/serial-scanner/",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern browser with camera access (HTTPS)",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "JPY"
+        },
+        "inLanguage": "ja",
+        "isAccessibleForFree": true
+      }
+    </script>
+
+    <!--  JSON LD person Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "馬じぇべ",
+        "alternateName": "mktbsh",
+        "description": "Software Engineer in Tokyo, Japan.",
+        "url": "https://hsb.horse",
+        "sameAs": [
+          "https://github.com/mktbsh",
+          "https://x.com/hsb_horse",
+          "https://instagram.com/hsbhorse",
+          "https://bsky.app/profile/hsb.horse",
+          "https://note.com/hsb_horse",
+          "https://www.youtube.com/@hsb_horse"
+        ]
+      }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap");
+
+      :root {
+        --bg: #0a0a0f;
+        --surface: #14141f;
+        --surface2: #1e1e2e;
+        --border: #2a2a3e;
+        --text: #e0e0f0;
+        --text-dim: #8888aa;
+        --accent: #00e5a0;
+        --accent-dim: rgba(0, 229, 160, 0.15);
+        --danger: #ff4466;
+        --mono: "JetBrains Mono", monospace;
+        --sans: "Noto Sans JP", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      .app {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 100dvh;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+      }
+
+      header h1 {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      header h1::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+
+      .badge {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 4px 10px;
+        border-radius: 100px;
+        letter-spacing: 0.05em;
+      }
+
+      /* Camera Section */
+      .camera-section {
+        position: relative;
+        background: var(--surface);
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+
+      .camera-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #000;
+        overflow: hidden;
+      }
+
+      #video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      #canvas-capture {
+        display: none;
+      }
+      #canvas-crop {
+        display: none;
+      }
+
+      .scan-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .scan-frame {
+        width: 85%;
+        height: 60px;
+        border: 2px solid var(--accent);
+        border-radius: 8px;
+        position: relative;
+        box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.4);
+      }
+
+      .scan-frame::before {
+        content: "シリアルナンバーを枠内に合わせる";
+        position: absolute;
+        bottom: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.7);
+        white-space: nowrap;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      }
+
+      .scan-line {
+        position: absolute;
+        top: 0;
+        left: 4px;
+        right: 4px;
+        height: 2px;
+        background: var(--accent);
+        opacity: 0;
+        border-radius: 1px;
+        filter: blur(0.5px);
+      }
+
+      .scanning .scan-line {
+        opacity: 0.8;
+        animation: scanMove 1.5s ease-in-out infinite;
+      }
+
+      @keyframes scanMove {
+        0%,
+        100% {
+          top: 4px;
+        }
+        50% {
+          top: calc(100% - 6px);
+        }
+      }
+
+      .camera-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        gap: 12px;
+      }
+
+      .btn-capture {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 3px solid var(--accent);
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.15s;
+      }
+
+      .btn-capture::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+        transition: all 0.15s;
+      }
+
+      .btn-capture:active::after {
+        inset: 8px;
+      }
+
+      .btn-capture:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .btn-capture:disabled::after {
+        background: var(--text-dim);
+      }
+
+      .btn-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.15s;
+      }
+
+      .btn-icon:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Status */
+      .status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        background: var(--surface);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--text-dim);
+        min-height: 42px;
+      }
+
+      .status-bar.processing {
+        color: var(--accent);
+      }
+      .status-bar.error {
+        color: var(--danger);
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--accent-dim);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Edit modal */
+      .edit-panel {
+        display: none;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 16px;
+      }
+
+      .edit-panel.active {
+        display: block;
+      }
+
+      .edit-panel label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+        letter-spacing: 0.05em;
+      }
+
+      .edit-input {
+        width: 100%;
+        font-family: var(--mono);
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-align: center;
+        padding: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        outline: none;
+        text-transform: uppercase;
+      }
+
+      .edit-input:focus {
+        border-color: var(--accent);
+      }
+
+      .edit-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: var(--bg);
+      }
+
+      .btn-primary:hover {
+        filter: brightness(1.1);
+      }
+
+      .btn-secondary {
+        background: var(--surface2);
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--text-dim);
+      }
+
+      /* Serial List */
+      .serial-list-section {
+        flex: 1;
+      }
+
+      .serial-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .serial-list-header h2 {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-dim);
+      }
+
+      .btn-copy-all {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 6px 12px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .btn-copy-all:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-copy-all.copied {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .serial-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .serial-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .serial-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .serial-num {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        width: 20px;
+        text-align: right;
+      }
+
+      .serial-code {
+        font-family: var(--mono);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--text);
+      }
+
+      .serial-item-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .btn-sm {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.15s;
+      }
+
+      .btn-sm:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .btn-sm.delete:hover {
+        color: var(--danger);
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: var(--text-dim);
+        font-size: 13px;
+        text-align: center;
+        gap: 8px;
+      }
+
+      .empty-state-icon {
+        font-size: 32px;
+        opacity: 0.3;
+        margin-bottom: 4px;
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--accent);
+        color: var(--bg);
+        padding: 10px 20px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 500;
+        pointer-events: none;
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 100;
+      }
+
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      /* Permissions error */
+      .camera-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 12px;
+        color: var(--text-dim);
+        font-size: 13px;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .camera-error button {
+        margin-top: 4px;
+        padding: 8px 20px;
+        background: var(--accent);
+        color: var(--bg);
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>Serial Scanner</h1>
+        <span class="badge" id="countBadge">0 件</span>
+      </header>
+
+      <div class="camera-section">
+        <div class="camera-container" id="cameraContainer">
+          <video id="video" autoplay playsinline muted></video>
+          <div class="scan-overlay" id="scanOverlay">
+            <div class="scan-frame">
+              <div class="scan-line"></div>
+            </div>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button class="btn-icon" id="btnFlip" title="カメラ切替">⟲</button>
+          <button class="btn-capture" id="btnCapture" title="撮影"></button>
+          <button class="btn-icon" id="btnTorch" title="ライト">💡</button>
+        </div>
+      </div>
+
+      <div class="status-bar" id="statusBar">カメラを起動中...</div>
+
+      <div class="edit-panel" id="editPanel">
+        <label>読み取り結果（編集可能）</label>
+        <input
+          type="text"
+          class="edit-input"
+          id="editInput"
+          maxlength="30"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="edit-actions">
+          <button class="btn btn-secondary" id="btnDiscard">破棄</button>
+          <button class="btn btn-primary" id="btnAdd">追加</button>
+        </div>
+      </div>
+
+      <div class="serial-list-section">
+        <div class="serial-list-header">
+          <h2>読み取り済み</h2>
+          <button class="btn-copy-all" id="btnCopyAll">全コピー</button>
+        </div>
+        <div class="serial-list" id="serialList">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">📷</div>
+            <div>シリアルナンバーを撮影してください</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <canvas id="canvas-capture"></canvas>
+    <canvas id="canvas-crop"></canvas>
+
+    <script>
+      const getElemByID = (id) => document.getElementById(id);
+
+      const video = getElemByID("video");
+      const canvasCapture = getElemByID("canvas-capture");
+      const canvasCrop = getElemByID("canvas-crop");
+      const btnCapture = getElemByID("btnCapture");
+      const btnFlip = getElemByID("btnFlip");
+      const btnTorch = getElemByID("btnTorch");
+      const statusBar = getElemByID("statusBar");
+      const scanOverlay = getElemByID("scanOverlay");
+      const editPanel = getElemByID("editPanel");
+      const editInput = getElemByID("editInput");
+      const btnAdd = getElemByID("btnAdd");
+      const btnDiscard = getElemByID("btnDiscard");
+      const serialListEl = getElemByID("serialList");
+      const emptyState = getElemByID("emptyState");
+      const countBadge = getElemByID("countBadge");
+      const btnCopyAll = getElemByID("btnCopyAll");
+      const toast = getElemByID("toast");
+
+      let serials = [];
+      let currentFacing = "environment";
+      let stream = null;
+      let torchOn = false;
+      let worker = null;
+
+      async function initWorker() {
+        if (worker) return;
+
+        const tesseractBaseURL =
+          "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js";
+
+        setStatus("OCRエンジン初期化中...", "processing");
+        worker = await Tesseract.createWorker("eng", 1, {
+          workerPath: `${tesseractBaseURL}/5.1.1/worker.min.js`,
+          corePath: `${tesseractBaseURL}-core/5.1.1/tesseract-core.wasm.js`,
+        });
+        await worker.setParameters({
+          tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ",
+          tessedit_pageseg_mode: "7", // single line
+        });
+      }
+
+      // カメラ起動
+      async function startCamera() {
+        try {
+          if (stream) {
+            stream.getTracks().forEach((t) => t.stop());
+          }
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: currentFacing,
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+          });
+          video.srcObject = stream;
+          await video.play();
+          setStatus("撮影ボタンを押してスキャン", "");
+          btnCapture.disabled = false;
+        } catch (e) {
+          setStatus("カメラへのアクセスが拒否されました", "error");
+          btnCapture.disabled = true;
+        }
+      }
+
+      // 撮影＆OCR
+      async function capture() {
+        if (!stream) return;
+        btnCapture.disabled = true;
+        scanOverlay.classList.add("scanning");
+        setStatus("読み取り中...", "processing");
+
+        // フレーム全体をキャプチャ
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        canvasCapture.width = vw;
+        canvasCapture.height = vh;
+        const ctx = canvasCapture.getContext("2d");
+        ctx.drawImage(video, 0, 0, vw, vh);
+
+        // スキャン枠部分を切り出し（中央の85% x 高さ中央付近）
+        const cropW = vw * 0.85;
+        const cropH = vh * 0.25;
+        const cropX = (vw - cropW) / 2;
+        const cropY = (vh - cropH) / 2;
+
+        canvasCrop.width = cropW;
+        canvasCrop.height = cropH;
+        const ctxCrop = canvasCrop.getContext("2d");
+        ctxCrop.drawImage(
+          canvasCapture,
+          cropX,
+          cropY,
+          cropW,
+          cropH,
+          0,
+          0,
+          cropW,
+          cropH,
+        );
+
+        // 前処理: グレースケール＋コントラスト強調
+        const imageData = ctxCrop.getImageData(0, 0, cropW, cropH);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          const gray =
+            data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          // 二値化（閾値128）
+          const val = gray > 128 ? 255 : 0;
+          data[i] = data[i + 1] = data[i + 2] = val;
+        }
+        ctxCrop.putImageData(imageData, 0, 0);
+
+        try {
+          await initWorker();
+          const { data: result } = await worker.recognize(canvasCrop);
+          const text = result.text.trim().toUpperCase();
+          console.log("OCR raw:", text);
+
+          // シリアルナンバー抽出: 4文字の英数字グループを抽出
+          const groups = text.match(/[A-Z0-9]{3,5}/g);
+          let serial = "";
+          if (groups && groups.length >= 2) {
+            // 4文字ずつに正規化して最大4グループ
+            const normalized = groups
+              .map((g) => g.slice(0, 4))
+              .filter((g) => g.length >= 3)
+              .slice(0, 4);
+            serial = normalized.join(" ");
+          }
+
+          scanOverlay.classList.remove("scanning");
+
+          if (serial.length >= 7) {
+            setStatus("読み取り完了 — 確認してください", "");
+            editInput.value = serial;
+            editPanel.classList.add("active");
+            editInput.focus();
+            editInput.select();
+          } else {
+            setStatus(
+              `認識失敗: "${text || "(空)"}". もう一度撮影してください`,
+              "error",
+            );
+            btnCapture.disabled = false;
+          }
+        } catch (e) {
+          console.error(e);
+          scanOverlay.classList.remove("scanning");
+          setStatus("OCRエラー。もう一度撮影してください", "error");
+          btnCapture.disabled = false;
+        }
+      }
+
+      function addSerial(code) {
+        code = code
+          .toUpperCase()
+          .replace(/[^A-Z0-9 ]/g, "")
+          .trim();
+        if (!code) return;
+        serials.push(code);
+        editPanel.classList.remove("active");
+        btnCapture.disabled = false;
+        setStatus("撮影ボタンを押してスキャン", "");
+        renderList();
+        showToast(`追加: ${code}`);
+      }
+
+      function removeSerial(index) {
+        serials.splice(index, 1);
+        renderList();
+      }
+
+      function copySerial(code) {
+        navigator.clipboard
+          .writeText(code)
+          .then(() => showToast("コピーしました"));
+      }
+
+      function copyAll() {
+        if (serials.length === 0) return;
+        const text = serials.join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+          btnCopyAll.classList.add("copied");
+          btnCopyAll.textContent = "✓ コピー済";
+          showToast(`${serials.length}件コピーしました`);
+          setTimeout(() => {
+            btnCopyAll.classList.remove("copied");
+            btnCopyAll.textContent = "全コピー";
+          }, 2000);
+        });
+      }
+
+      function renderList() {
+        countBadge.textContent = `${serials.length} 件`;
+        if (serials.length === 0) {
+          serialListEl.innerHTML = `
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">📷</div>
+        <div>シリアルナンバーを撮影してください</div>
+      </div>`;
+          return;
+        }
+        serialListEl.innerHTML = serials
+          .map(
+            (s, i) => `
+    <div class="serial-item">
+      <div class="serial-item-left">
+        <span class="serial-num">${i + 1}</span>
+        <span class="serial-code">${s}</span>
+      </div>
+      <div class="serial-item-actions">
+        <button class="btn-sm" onclick="copySerial('${s}')" title="コピー">📋</button>
+        <button class="btn-sm delete" onclick="removeSerial(${i})" title="削除">✕</button>
+      </div>
+    </div>
+  `,
+          )
+          .reverse()
+          .join("");
+      }
+
+      function setStatus(msg, type) {
+        statusBar.className = "status-bar" + (type ? ` ${type}` : "");
+        statusBar.innerHTML =
+          (type === "processing" ? '<div class="spinner"></div>' : "") + msg;
+      }
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2000);
+      }
+
+      // イベント
+      btnCapture.addEventListener("click", capture);
+
+      btnFlip.addEventListener("click", () => {
+        currentFacing =
+          currentFacing === "environment" ? "user" : "environment";
+        startCamera();
+      });
+
+      btnTorch.addEventListener("click", async () => {
+        if (!stream) return;
+        const track = stream.getVideoTracks()[0];
+        try {
+          torchOn = !torchOn;
+          await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+        } catch (e) {
+          showToast("ライト非対応");
+        }
+      });
+
+      btnAdd.addEventListener("click", () => addSerial(editInput.value));
+      btnDiscard.addEventListener("click", () => {
+        editPanel.classList.remove("active");
+        btnCapture.disabled = false;
+        setStatus("撮影ボタンを押してスキャン", "");
+      });
+
+      editInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addSerial(editInput.value);
+      });
+
+      btnCopyAll.addEventListener("click", copyAll);
+
+      // 起動
+      startCamera();
+      renderList();
+    </script>
+  </body>
+</html>
